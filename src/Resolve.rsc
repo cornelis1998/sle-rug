@@ -36,13 +36,13 @@ Use uses(AForm f) {
 }
 
 Def defs(AForm f) {
-	Def d = {};
+	Def ds = {};
 	
 	visit(f){
-		case question(str qText, AId qId, AType qType) : defs += {<qId.name, qId.src>};
-		case computedQuestion(AQuestion q, AExpr qExpr) : defs += {<q.qId.name, qId.src>};
+		case question(str qText, AId qId, AType qType) : ds += {<qId.name, qId.src>};
+		case computedQuestion(AQuestion q, AExpr qExpr) : ds += {<q.qId.name, q.qId.src>};
 	}
 
 
-	return d;
+	return ds;
 }

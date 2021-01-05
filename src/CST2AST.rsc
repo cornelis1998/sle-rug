@@ -34,28 +34,16 @@ ABlock cst2ast(Block b){
 	return block(ie, qs, computed);
 }
 
-AQuestion cst2ast(Question q) {
-	switch(q) {
-  		case(Question) `<Str qText> <Id id> : <Type tipe>`: return question("<qText>", cst2ast(id), cst2ast(tipe), src=q@\loc);
-  	
-  		default: throw "Unhandled question: <q>";
-  	}
-}
+AQuestion cst2ast((Question) `<Str qText> <Id id> : <Type tipe>`) 
+	= question("<qText>",cst2ast(id),cst2ast(tipe));
 
-AComputedQuestion cst2ast(ComputedQuestion cq) {
-	switch(cq) {
-  		case(ComputedQuestion) `<Question q>  = <Expr e>`: return computedQuestion(cst2ast(q), cst2ast(e), src=cq@\loc);
-  	
-  		default: throw "Unhandled question: <cq>";
-  	}
-}
 
-AIf cst2ast(If q) {
-	switch(q){
-		case(If) `if ( <Expr e> ) <Block b>`: return ifThen(cst2ast(e), cst2ast(b), src=q@\loc);
-		default: throw "Unhandled if <q>";
-	}
-}
+AComputedQuestion cst2ast((ComputedQuestion) `<Question q>  = <Expr e>`)
+	= computedQuestion(cst2ast(q), cst2ast(e));
+ 
+
+AIf cst2ast((If) `if ( <Expr e> ) <Block b>`)
+	= ifThen(cst2ast(e), cst2ast(b));
 
 AIfElse cst2ast(IfElse q) {
 	switch(q) {
@@ -93,22 +81,8 @@ AExpr cst2ast(Expr e) {
   }
 }
 
-AType cst2ast(Type t) {
-	switch(t) {
-  	case(Type) `<Type t>`: return typ("<t>", src=t@\loc);
-  	
-  	default: throw "Unhandled type: <t>";
-  	}
+AType cst2ast((Type) `<Type t>`)
+	= typ("<t>", src=t@\loc);
 
-}
-
-AId cst2ast(Id i){
-	println("in AId cst2ast");
-	//return id("test123");
-	
-	switch(i) {
-  	case(Id) `<Id i>`: return id("<i>", src=i@\loc);
-  	
-  	default: throw "Unhandled type: <i>";
-  	}
-}
+AId cst2ast((Id) `<Id i>`)
+	= id("<i>", src=i@\loc);
