@@ -64,7 +64,7 @@ AExpr cst2ast(Expr e) {
     case(Expr) `<Str literal>`: return string("<literal>", src=literal@\loc);
     case(Expr) `<Expr lhs>||<Expr rhs>`: return or(cst2ast(lhs), cst2ast(rhs), src=e@\loc);
     case(Expr) `<Expr lhs>&&<Expr rhs>`: return and(cst2ast(lhs), cst2ast(rhs), src=e@\loc);
-    case(Expr) `<Expr lhs>!=<Expr rhs>`: return notEqual(cst2ast(lhs), cst2ast(rhs), src=e@\loc);
+    case(Expr) `<Expr lhs>!=<Expr rhs>`: return not(equal(cst2ast(lhs), cst2ast(rhs), src=e@\loc), src=e@\loc);
     case(Expr) `<Expr lhs>==<Expr rhs>`: return equal(cst2ast(lhs), cst2ast(rhs), src=e@\loc);
     case(Expr) `<Expr lhs>\>=<Expr rhs>`: return geq(cst2ast(lhs), cst2ast(rhs), src=e@\loc);
     case(Expr) `<Expr lhs>\<=<Expr rhs>`: return leq(cst2ast(lhs), cst2ast(rhs), src=e@\loc);
