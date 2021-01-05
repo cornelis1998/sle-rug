@@ -54,14 +54,52 @@ set[Message] check(AExpr e, TEnv tenv, UseDef useDef) {
   switch (e) {
     case ref(AId x):
       msgs += { error("Undeclared question", x.src) | useDef[x.src] == {} };
-	case or(AExpr lhs, AExpr rhs) : 
-		if(!(typeOf(lhs, tenv, useDef) == tbool() && typeOf(rhs, tenv, useDef)==tbool())) 
-			msgs += { error("or operator need 2 boolean operants", e.src)};
-
-    // etc.
+	case or(AExpr lhs, AExpr rhs) : msg += checkBool(lhs, rhs, tenv, useDef);
+	case and(AExpr lhs, AExpr rhs) : msg += checkBool(lhs, rhs, tenv, useDef);
+	case equal(AExpr lhs, AExpr rhs) : msg += checkInt(lhs, rhs, tenv, useDef);
+	case geq(AExpr lhs, AExpr rhs) : msg += checkInt(lhs, rhs, tenv, useDef);
+	case leq(AExpr lhs, AExpr rhs) : msg += checkInt(lhs, rhs, tenv, useDef);
+	case greater(AExpr lhs, AExpr rhs) : msg += checkInt(lhs, rhs, tenv, useDef);
+	case less(AExpr lhs, AExpr rhs) : msg += checkInt(lhs, rhs, tenv, useDef);
+	case subtract(AExpr lhs, AExpr rhs) : msg += checkInt(lhs, rhs, tenv, useDef);
+	case add(AExpr lhs, AExpr rhs) : msg += checkInt(lhs, rhs, tenv, useDef);
+	case divide(AExpr lhs, AExpr rhs) : msg += checkInt(lhs, rhs, tenv, useDef);
+	case multiply(AExpr lhs, AExpr rhs) : msg += checkInt(lhs, rhs, tenv, useDef);
+	case not(AExpr lhs) : msg += checkSignleBool(lhs, tenv, useDef);
+	case brackets(AExpr lhs) : msg += check(lhs, tenv, useDef);
+	
+	//default: msg += {warning("Unhandled expression: <e>", e.src)};
   }
   
   return msgs; 
+}
+
+set[Message] checkSingleBool(AExpr lhs, TEnv tenv, UseDef useDef){
+	lhsType = typeOf(lhs, tenv, useDef);
+
+	msg = lhsType == tbool() ? {} : {error("Expected type was boolean, but got <typeToString(lhsType)>", lhs.src)};
+	
+	return msg;
+}
+
+set[Message] checkBool(AExpr lhs, AExpr rhs, TEnv tenv, UseDef useDef){
+	lhsType = typeOf(lhs, tenv, useDef);
+	rhsType = typeOf(rhs, tenv, useDef);
+
+	msg = lhsType == tbool() ? {} : {error("Expected type was boolean, but got <typeToString(lhsType)>", lhs.src)};
+	msg += rhsType == tbool() ? {} : {error("Expected type was boolean, but got <typeToString(rhsType)>", rhs.src)};
+	
+	return msg;
+}
+
+set[Message] checkInt(AExpr lhs, AExpr rhs, TEnv tenv, UseDef useDef){
+	lhsType = typeOf(lhs, tenv, useDef);
+	rhsType = typeOf(rhs, tenv, useDef);
+
+	msg = lhsType == tint() ? {} : {error("Expected type was integer, but got <typeToString(lhsType)>", lhs.src)};
+	msg += rhsType == tint() ? {} : {error("Expected type was integer, but got <typeToString(rhsType)>", rhs.src)};
+	
+	return msg;
 }
 
 Type typeOf(AExpr e, TEnv tenv, UseDef useDef) {
@@ -89,6 +127,15 @@ Type typeOf(AExpr e, TEnv tenv, UseDef useDef) {
 
   }
   return tunknown(); 
+}
+
+str typeToString(Type t){
+	if(t == tbool()) return"boolean";
+	if(t == tint()) return"integer";
+	if(t == tstr()) return"string";
+
+	return "unknown";
+	
 }
 
 Type toType(typ(str val)){
