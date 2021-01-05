@@ -34,16 +34,16 @@ ABlock cst2ast(Block b){
 	return block(ie, qs, computed);
 }
 
-AQuestion cst2ast((Question) `<Str qText> <Id id> : <Type tipe>`) 
-	= question("<qText>",cst2ast(id),cst2ast(tipe));
+AQuestion cst2ast(q: (Question) `<Str qText> <Id id> : <Type tipe>`) 
+	= question("<qText>",cst2ast(id),cst2ast(tipe), src=q@\loc);
 
 
-AComputedQuestion cst2ast((ComputedQuestion) `<Question q>  = <Expr e>`)
-	= computedQuestion(cst2ast(q), cst2ast(e));
+AComputedQuestion cst2ast(cq: (ComputedQuestion) `<Question q>  = <Expr e>`)
+	= computedQuestion(cst2ast(q), cst2ast(e), src=q@\loc);
  
 
-AIf cst2ast((If) `if ( <Expr e> ) <Block b>`)
-	= ifThen(cst2ast(e), cst2ast(b));
+AIf cst2ast(i: (If) `if ( <Expr e> ) <Block b>`)
+	= ifThen(cst2ast(e), cst2ast(b), src=i@\loc);
 
 AIfElse cst2ast(IfElse q) {
 	switch(q) {
