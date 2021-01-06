@@ -5,6 +5,6 @@ form taxOfficeExample {
    
     // akjsdhakjshdkjsa
     
-  "Did you enter a loan?"
+  "Did you buy a house in 2010?"
     hasBoughtHouse: integer
 }

@@ -40,11 +40,6 @@ set[Message] check(AForm f, TEnv tenv, UseDef useDef) {
 	}
 	
 	
-	
-	for(true){
-	;
-	}
-
   return msg; 
 }
 
@@ -60,7 +55,12 @@ set[Message] check(AQuestion q, TEnv tenv, UseDef useDef) {
 		
 		
 		//println("This question has type <q.qType.val>, and the other has type <typeToString(t)>");
+	}
 	
+	if((<loc l, _, str label, _> <- tenv) && label == q.qText){
+		msg += {warning("The label of this question is identical to that of another question", q.src)};
+		msg += {warning("The location of the other duplicate label is at", l)};
+		
 	}
 	
 	
