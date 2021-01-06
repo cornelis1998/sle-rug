@@ -93,8 +93,6 @@ Value eval(AExpr e, VEnv venv) {
     case brackets(AExpr lhs): return eval(lhs, venv);
     
     
-    // etc.
-    
     default: throw "Unsupported expression <e>";
   }
 }
