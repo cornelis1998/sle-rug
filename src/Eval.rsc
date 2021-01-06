@@ -3,6 +3,8 @@ module Eval
 import AST;
 import Resolve;
 
+import IO;//TODO: remove
+
 /*
  * Implement big-step semantics for QL
  */
@@ -27,7 +29,23 @@ data Input
 // produce an environment which for each question has a default value
 // (e.g. 0 for int, "" for str etc.)
 VEnv initialEnv(AForm f) {
-  return ();
+	VEnv venv = ();
+
+	visit(f){
+		case (AQuestion) q : {
+			//println("test123");
+			switch(q.qType){
+				case typ("string"): venv +=(q.qId.name: vstr(""));
+				case typ("integer"): venv += (q.qId.name: vint(0));
+				case typ("boolean"): venv += (q.qId.name: vbool(false));
+				
+				default: println("Question type not known <q.qType.val>");//This shouldn't happen, but well
+			}
+			
+		}
+	}
+
+  return venv;
 }
 
 
@@ -51,7 +69,29 @@ VEnv eval(AQuestion q, Input inp, VEnv venv) {
 
 Value eval(AExpr e, VEnv venv) {
   switch (e) {
-    case ref(str x): return venv[x];
+    case ref(AId id): return venv[id.name];
+    case boolean(bool b): return vbool(b);
+    case integer(int x): return vint(x);
+    case string(str s): return vstr(s);
+    
+    case or(AExpr lhs, AExpr rhs): return vbool(eval(lhs, venv).b || eval(rhs, venv).b);
+    case and(AExpr lhs, AExpr rhs): return vbool(eval(lhs, venv).b && eval(rhs, venv).b);
+    case equal(AExpr lhs, AExpr rhs): return vbool(eval(lhs, venv) == eval(rhs, venv));
+    
+    case geq(AExpr lhs, AExpr rhs): return vbool(eval(lhs, venv).n >= eval(rhs, venv).n);
+    case leq(AExpr lhs, AExpr rhs): return vbool(eval(lhs, venv).n <= eval(rhs, venv).n);
+    case greater(AExpr lhs, AExpr rhs): return vbool(eval(lhs, venv).n > eval(rhs, venv).n);
+    case less(AExpr lhs, AExpr rhs): return vbool(eval(lhs, venv).n < eval(rhs, venv).n);
+    
+    case subtract(AExpr lhs, AExpr rhs): return vint(eval(lhs, venv).n - eval(rhs, venv).n);
+    case add(AExpr lhs, AExpr rhs): return vint(eval(lhs, venv).n + eval(rhs, venv).n);
+    case divide(AExpr lhs, AExpr rhs): return vint(eval(lhs, venv).n / eval(rhs, venv).n);
+    case multiply(AExpr lhs, AExpr rhs): return vint(eval(lhs, venv).n * eval(rhs, venv).n);
+    
+    
+    case not(AExpr lhs): return vbool(!eval(lhs, venv).b);
+    case brackets(AExpr lhs): return eval(lhs, venv);
+    
     
     // etc.
     

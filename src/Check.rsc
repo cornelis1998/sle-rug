@@ -92,7 +92,7 @@ set[Message] check(AExpr e, TEnv tenv, UseDef useDef) {
       msg += { error("Undeclared variable", x.src) | useDef[x.src] == {} };
 	case or(AExpr lhs, AExpr rhs) : msg += checkBool(lhs, rhs, tenv, useDef);
 	case and(AExpr lhs, AExpr rhs) : msg += checkBool(lhs, rhs, tenv, useDef);
-	case equal(AExpr lhs, AExpr rhs) : msg += checkInt(lhs, rhs, tenv, useDef);
+	case equal(AExpr lhs, AExpr rhs) : msg += checkEquals(e, lhs, rhs, tenv, useDef);
 	case geq(AExpr lhs, AExpr rhs) : msg += checkInt(lhs, rhs, tenv, useDef);
 	case leq(AExpr lhs, AExpr rhs) : msg += checkInt(lhs, rhs, tenv, useDef);
 	case greater(AExpr lhs, AExpr rhs) : msg += checkInt(lhs, rhs, tenv, useDef);
@@ -114,7 +114,18 @@ set[Message] check(AExpr e, TEnv tenv, UseDef useDef) {
   return msg; 
 }
 
+set[Message] checkEquals(AExpr e, AExpr lhs, AExpr rhs, TEnv tenv, UseDef useDef){
+	lhsType = typeOf(lhs, tenv, useDef);
+	rhsType = typeOf(lhs, tenv, useDef);
+	
+	if(lhsType != rhsType) return {error("Both left and right sides need to be the same type, leftside is of type <typeToString(lhsType)> and the rightside is of type <typeToString(rhsType)>",e.src)};
+
+	return msg;
+}
+
+
 set[Message] checkSingleBool(AExpr lhs, TEnv tenv, UseDef useDef){
+	set[Message] msg = {};
 	lhsType = typeOf(lhs, tenv, useDef);
 
 	msg = lhsType == tbool() ? {} : {error("Expected type was boolean, but got <typeToString(lhsType)>", lhs.src)};
@@ -123,6 +134,7 @@ set[Message] checkSingleBool(AExpr lhs, TEnv tenv, UseDef useDef){
 }
 
 set[Message] checkBool(AExpr lhs, AExpr rhs, TEnv tenv, UseDef useDef){
+	set[Message] msg = {};
 	lhsType = typeOf(lhs, tenv, useDef);
 	rhsType = typeOf(rhs, tenv, useDef);
 
@@ -133,6 +145,7 @@ set[Message] checkBool(AExpr lhs, AExpr rhs, TEnv tenv, UseDef useDef){
 }
 
 set[Message] checkInt(AExpr lhs, AExpr rhs, TEnv tenv, UseDef useDef){
+	set[Message] msg = {};
 	lhsType = typeOf(lhs, tenv, useDef);
 	rhsType = typeOf(rhs, tenv, useDef);
 
