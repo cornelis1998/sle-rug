@@ -31,29 +31,65 @@ TEnv collect(AForm f) {
 }
 
 set[Message] check(AForm f, TEnv tenv, UseDef useDef) {
+	set[Message] msg = {};
 	
+	visit(f){
+		case (AExpr) e: msg += check(e, tenv, useDef); 
+		case ifThen(AExpr condition, _) : msg += checkSingleBool(condition, tenv, useDef);
+		case (AQuestion) q: msg += check(q, tenv, useDef);
+	}
+	
+	
+	
+	for(true){
+	;
+	}
 
-  return {}; 
+  return msg; 
 }
 
 // - produce an error if there are declared questions with the same name but different types.
 // - duplicate labels should trigger a warning 
-// - the declared type computed questions should match the type of the expression.
 set[Message] check(AQuestion q, TEnv tenv, UseDef useDef) {
+	set[Message] msg = {};
 	
+	str n = q.qId.name;
+	if((<loc l, n, _, Type t> <- tenv) && t != toType(q.qType)){
+		msg += {error("This question has type <q.qType.val>, and the other has type <typeToString(t)>", q.src)};
+		msg += {error("The location of the other occurence is at", l)};
+		
+		
+		//println("This question has type <q.qType.val>, and the other has type <typeToString(t)>");
+	
+	}
+	
+	
+  return msg; 
+}
 
-  return {}; 
+
+// - the declared type computed questions should match the type of the expression.
+set[Message] check(computedQuestion(AQuestion q, AExpr qExpr), TEnv tenv, UseDef useDef) {
+	set[Message] msg = {};
+		
+	t = typeOf(qExpr, tenv, useDef);
+	
+	if(t != toType(q.qType)){
+		msg += {error("expected <toType(q.qType)>, but got <typeToString(t)>", qExpr.src)};
+	}
+
+	return msg; 
 }
 
 // Check operand compatibility with operators.
 // E.g. for an addition node add(lhs, rhs), 
 //   the requirement is that typeOf(lhs) == typeOf(rhs) == tint()
 set[Message] check(AExpr e, TEnv tenv, UseDef useDef) {
-  set[Message] msgs = {};
+  set[Message] msg = {};
   
   switch (e) {
     case ref(AId x):
-      msgs += { error("Undeclared question", x.src) | useDef[x.src] == {} };
+      msg += { error("Undeclared variable", x.src) | useDef[x.src] == {} };
 	case or(AExpr lhs, AExpr rhs) : msg += checkBool(lhs, rhs, tenv, useDef);
 	case and(AExpr lhs, AExpr rhs) : msg += checkBool(lhs, rhs, tenv, useDef);
 	case equal(AExpr lhs, AExpr rhs) : msg += checkInt(lhs, rhs, tenv, useDef);
@@ -65,13 +101,17 @@ set[Message] check(AExpr e, TEnv tenv, UseDef useDef) {
 	case add(AExpr lhs, AExpr rhs) : msg += checkInt(lhs, rhs, tenv, useDef);
 	case divide(AExpr lhs, AExpr rhs) : msg += checkInt(lhs, rhs, tenv, useDef);
 	case multiply(AExpr lhs, AExpr rhs) : msg += checkInt(lhs, rhs, tenv, useDef);
-	case not(AExpr lhs) : msg += checkSignleBool(lhs, tenv, useDef);
+	case not(AExpr lhs) : msg += checkSingleBool(lhs, tenv, useDef);
 	case brackets(AExpr lhs) : msg += check(lhs, tenv, useDef);
 	
-	//default: msg += {warning("Unhandled expression: <e>", e.src)};
+	case boolean(_) : ;
+	case integer(_) : ;
+	case string(_) : ;
+	
+	default: msg += {warning("Unhandled expression: <e>", e.src)};
   }
   
-  return msgs; 
+  return msg; 
 }
 
 set[Message] checkSingleBool(AExpr lhs, TEnv tenv, UseDef useDef){
@@ -105,9 +145,9 @@ set[Message] checkInt(AExpr lhs, AExpr rhs, TEnv tenv, UseDef useDef){
 Type typeOf(AExpr e, TEnv tenv, UseDef useDef) {
 	switch (e) {
 		case ref(id(_, src = loc u)):  
-			if (<u, loc d> <- useDef, <d, x, _, Type t> <- tenv) {
-				return t;
-			}
+      if (<u, loc d> <- useDef, <d, _, _, Type t> <- tenv) {
+        return t;
+      }
 		case boolean(_) : return tbool();
 		case integer(_) : return tint();
 		case string(_) : return tstr();

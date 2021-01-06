@@ -39,8 +39,8 @@ Def defs(AForm f) {
 	Def ds = {};
 	
 	visit(f){
-		case question(str qText, AId qId, AType qType) : ds += {<qId.name, qId.src>};
-		case computedQuestion(AQuestion q, AExpr qExpr) : ds += {<q.qId.name, q.qId.src>};
+		case q:question(str qText, AId qId, AType qType): ds += {<qId.name, q.src>};
+		case cq:computedQuestion(AQuestion q, AExpr qExpr) : ds += {<q.qId.name, cq.src>};
 	}
 
 

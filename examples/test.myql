@@ -1,6 +1,10 @@
-form taxOfficeExample {
-	"Is the number between 1 and 10" x_1_10: boolean
-	if (true) {
-	"Is the number between 1 and 5" x_1_5: boolean
-	}
+form taxOfficeExample { 
+  "Did you buy a house in 2010?"
+    hasBoughtHouse: boolean
+    
+   
+    // akjsdhakjshdkjsa
+    
+  "Did you enter a loan?"
+    hasBoughtHouse: integer
 }
